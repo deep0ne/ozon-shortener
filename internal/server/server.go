@@ -104,11 +104,11 @@ func (s *URLShortenerServer) GETFullURL(ctx *gin.Context) {
 	full, err := s.GetOriginalURL(ctx, &api.ShortenedURL{ShortURL: url})
 	if err != nil {
 		s.Logger.Error(err)
-		ctx.JSON(http.StatusInternalServerError, errorResponse(err))
+		ctx.JSON(http.StatusNoContent, errorResponse(err))
 		return
 	}
-	s.Logger.Logln(logrus.InfoLevel, "Returning Full URL")
-	ctx.JSON(http.StatusOK, fmt.Sprintf("Your full URL: %v", full.URL))
+	s.Logger.Logln(logrus.InfoLevel, "Redirecting...")
+	ctx.Redirect(http.StatusMovedPermanently, full.URL)
 }
 
 func errorResponse(err error) gin.H {

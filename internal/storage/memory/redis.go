@@ -3,6 +3,7 @@ package memory
 import (
 	"context"
 	"errors"
+	"fmt"
 	"strconv"
 	"time"
 
@@ -31,9 +32,11 @@ func (r *RedisDB) AddLink(ctx context.Context, id int64, url string) (string, er
 		return "", errors.New("such short URL was already generated")
 	}
 
-	err = r.Client.Get(url).Err()
+	short, err := r.Client.Get(url).Result()
 	if err == nil {
-		return "", errors.New("short url for that URL was already generated")
+		num, _ := strconv.ParseInt(short, 10, 64)
+		shortURL := base63.Encode(num)
+		return "", errors.New(fmt.Sprintf("short url for that URL was already generated %v", shortURL))
 	}
 
 	shortURL := base63.Encode(id)

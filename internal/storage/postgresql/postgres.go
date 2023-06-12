@@ -3,6 +3,7 @@ package postgresql
 import (
 	"context"
 	"errors"
+	"fmt"
 
 	"github.com/deep0ne/ozon-test/base63"
 	"gorm.io/driver/postgres"
@@ -39,7 +40,8 @@ func (p *PostgreSQL) AddLink(ctx context.Context, id int64, url string) (string,
 	result := p.DB.Where(&Link{FullURL: url}).Attrs(Link{ShortUrl: id}).FirstOrCreate(&link)
 
 	if result.RowsAffected == 0 {
-		return "", errors.New("short URL for this URL was already generated")
+		short := base63.Encode(link.ShortUrl)
+		return "", errors.New(fmt.Sprintf("short URL for this URL was already generated: %v", short))
 	}
 
 	shortURL := base63.Encode(id)
