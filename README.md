@@ -11,7 +11,7 @@
 1. `localhost:8082/shorten` - POST запрос, в теле которого необходимо отправить ссылку для сокращения. Например, POST запрос с телом
 ```json 
 {
-    "URL": "https://desud-webdev-382/landocsweb/documents/341813/view/241627"
+    "URL": "https://some-service-webdev-100/serviceweb/documents/info/341813/view/241627"
 }
 ``` 
 сделает запись в БД и отдаст сгенерированную короткую ссылку.
