@@ -3,10 +3,12 @@
 Докер образ: https://hub.docker.com/r/alexnet1337/dockerhub
 
 Для запуска сервера необходимо запустить `main.go` в папке `cmd/server`. Варианты запуска
-1. `go run main.go` - запустит сервис с `PostgreSQL` в docker контейнере
-2. `go run main.go -m` - запуск с флагом `-m` поднимет `Redis` в docker контейнере
+1. `go run main.go` - запустит сервис с `PostgreSQL`
+2. `go run main.go -r` - запуск с флагом `-m` поднимет `Redis`
+3. `go run main.go -m` - запуск с in-memory базой
 
-Запуск контейнеров осуществляется командой из `Makefile`.
+Добавлен `docker-compose`, чтобы можно было поднять у себя сервис.
+
 После запуска станут доступны два эндпоинта по `localhost:8082`
 1. `localhost:8082/shorten` - POST запрос, в теле которого необходимо отправить ссылку для сокращения. Например, POST запрос с телом
 ```json 
