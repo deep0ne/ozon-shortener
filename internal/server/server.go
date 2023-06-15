@@ -16,7 +16,11 @@ import (
 	"github.com/sirupsen/logrus"
 )
 
-const address = "localhost:8082"
+const (
+	address        = ":8082"
+	alphabetLength = 63
+	shortLength    = 10
+)
 
 type URLShortenerServer struct {
 	api.UnimplementedURLShortenerServer
@@ -34,14 +38,20 @@ func NewURLShortenerServer(db storage.DB) *URLShortenerServer {
 
 func (s *URLShortenerServer) CreateShortURL(ctx context.Context, url *api.OriginalURL) (*api.ShortenedURL, error) {
 
-	id, err := rand.Int(rand.Reader, big.NewInt(math.MaxInt64))
+	res, err := rand.Int(rand.Reader, big.NewInt(math.MaxInt64))
+	id := res.Int64()
+
+	// я не придумал по-другому, как гарантированно выдавать 10 символов)))
+	for id > int64(math.Pow(float64(alphabetLength), float64(shortLength))) {
+		id = int64(float64(id) / 1.5)
+	}
 	if err != nil {
 		s.Logger.Error(err)
 		return nil, err
 	}
 
 	s.Logger.Info("Adding short URL...")
-	shortURL, err := s.db.AddLink(ctx, id.Int64(), url.URL)
+	shortURL, err := s.db.AddLink(ctx, id, url.URL)
 	if err != nil {
 		s.Logger.Error(err)
 		return nil, err

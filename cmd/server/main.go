@@ -1,18 +1,18 @@
 package main
 
 import (
+	"errors"
 	"flag"
 	"log"
 	"net"
-	"os/exec"
 	"sync"
-	"time"
 
 	api "github.com/deep0ne/ozon-test/api/proto"
 	"github.com/deep0ne/ozon-test/internal/server"
 	"github.com/deep0ne/ozon-test/internal/storage"
 	"github.com/deep0ne/ozon-test/internal/storage/memory"
 	"github.com/deep0ne/ozon-test/internal/storage/postgresql"
+	"github.com/deep0ne/ozon-test/internal/storage/redisdb"
 	"google.golang.org/grpc"
 )
 
@@ -22,11 +22,12 @@ func main() {
 	}
 }
 
-func flagParsing() bool {
-	var inMemory bool
+func flagParsing() (bool, bool) {
+	var inMemory, Redis bool
 	flag.BoolVar(&inMemory, "m", false, "Usage: pass -m if you want to be your db in memory")
+	flag.BoolVar(&Redis, "r", false, "Usage: pass -r if you want to initialize redis")
 	flag.Parse()
-	return inMemory
+	return inMemory, Redis
 }
 
 func run() error {
@@ -35,25 +36,17 @@ func run() error {
 		return err
 	}
 
-	inMemory := flagParsing()
+	inMemory, Redis := flagParsing()
+	if inMemory && Redis {
+		return errors.New("you need to pass either -m or -r to initialize database. See usage.")
+	}
 	var db storage.DB
 
-	if inMemory {
-		log.Println("Initializing Redis... Please wait a few seconds...")
-		cmd := exec.Command("make", "-C", "../../", "redis")
-		if err := cmd.Run(); err != nil {
-			log.Println(err)
-			return err
-		}
-		time.Sleep(5 * time.Second)
-		db = memory.NewRedisDB()
+	if Redis {
+		db = redisdb.NewRedisDB()
+	} else if inMemory {
+		db = memory.NewInMemoryDB()
 	} else {
-		log.Println("Initializing Postgres... Please wait a few seconds...")
-		cmd := exec.Command("make", "-C", "../../", "postgres")
-		if err := cmd.Run(); err != nil {
-			return err
-		}
-		time.Sleep(5 * time.Second)
 		db, err = postgresql.NewPostgreSQL()
 		if err != nil {
 			return err

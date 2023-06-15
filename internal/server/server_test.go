@@ -2,10 +2,7 @@ package server
 
 import (
 	"context"
-	"log"
-	"os/exec"
 	"testing"
-	"time"
 
 	api "github.com/deep0ne/ozon-test/api/proto"
 	"github.com/deep0ne/ozon-test/base63"
@@ -14,12 +11,7 @@ import (
 )
 
 func TestURLShortenerServer(t *testing.T) {
-	cmd := exec.Command("make", "-C", "../../", "redis")
-	if err := cmd.Run(); err != nil {
-		log.Println(err)
-	}
-	time.Sleep(2 * time.Second)
-	db := memory.NewRedisDB()
+	db := memory.NewInMemoryDB()
 
 	server := NewURLShortenerServer(db)
 	testCases := []struct {
