@@ -10,7 +10,7 @@ import (
 	"gorm.io/gorm"
 )
 
-const dsn = "host=localhost user=gorm password=gorm dbname=gorm port=9920 sslmode=disable"
+const dsn = "host=postgres user=gorm password=gorm dbname=gorm port=5432 sslmode=disable"
 
 type Link struct {
 	FullURL  string `gorm:"unique"`
